@@ -88,6 +88,10 @@ for (const m of mines) {
   }
 }
 
+function randomRemaining() {
+  return 2 + Math.floor(Math.random() * 4) // 2..5
+}
+
 // The gemRates are ABSOLUTE probabilities (not normalized). A value of 0.05 means
 // every cell independently has a 5% chance to be that gem. Outcomes are mutually
 // exclusive; the first matched cumulative interval wins. Stone fills the remainder.
@@ -102,7 +106,14 @@ export function randomCellForMine(mine: MineDefinition): CellData {
     const nextAcc = acc + p
     if (r < nextAcc) {
       const g = gemColors.find((g) => g.name === gName)!
-      return { id: Date.now() + Math.random(), kind: 'gem', color: g.color, name: g.name }
+      return {
+        id: Date.now() + Math.random(),
+        kind: 'gem',
+        color: g.color,
+        name: g.name,
+        remaining: randomRemaining(),
+        disabled: false,
+      }
     }
     acc = nextAcc
   }
@@ -115,7 +126,13 @@ export function randomCellForMine(mine: MineDefinition): CellData {
     'hsl(0,0%,40%)',
   ]
   const grey = greyShades[(Math.random() * greyShades.length) | 0]
-  return { id: Date.now() + Math.random(), kind: 'stone', color: grey }
+  return {
+    id: Date.now() + Math.random(),
+    kind: 'stone',
+    color: grey,
+    remaining: randomRemaining(),
+    disabled: false,
+  }
 }
 
 export function stoneChance(mine: MineDefinition) {

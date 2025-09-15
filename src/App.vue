@@ -57,12 +57,17 @@ body,
   overflow: hidden;
 }
 
+/* Increase root font-size for better mobile readability */
+html {
+  font-size: 18px;
+}
+
 :root {
   --font-heading: 'Cinzel', serif;
   --font-body: 'Cormorant Garamond', serif;
   --heading-weight: 600;
   --body-weight: 500;
-  --body-font-size: 16px;
+  --body-font-size: 1rem; /* follow root size */
 }
 
 body {

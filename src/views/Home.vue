@@ -70,5 +70,6 @@ export default { name: 'HomeView' }
 
 .card-body {
   padding: 12px 14px 14px;
+  font-size: 1rem;
 }
 </style>

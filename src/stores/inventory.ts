@@ -31,15 +31,35 @@ export interface CellData {
   kind: CellKind
   color: string
   name?: GemName
+  // New: how many more times this block can be mined before disabling
+  remaining: number // 2..5
+  disabled?: boolean
+}
+
+function randomRemaining() {
+  return 2 + Math.floor(Math.random() * 4) // 2..5
 }
 
 export function randomCell(gemChance = 0.15): CellData {
   if (Math.random() < gemChance) {
     const g = gemColors[(Math.random() * gemColors.length) | 0]
-    return { id: nextId++, kind: 'gem', color: g.color, name: g.name }
+    return {
+      id: nextId++,
+      kind: 'gem',
+      color: g.color,
+      name: g.name,
+      remaining: randomRemaining(),
+      disabled: false,
+    }
   } else {
     const grey = stoneGreys[(Math.random() * stoneGreys.length) | 0]
-    return { id: nextId++, kind: 'stone', color: grey }
+    return {
+      id: nextId++,
+      kind: 'stone',
+      color: grey,
+      remaining: randomRemaining(),
+      disabled: false,
+    }
   }
 }
 

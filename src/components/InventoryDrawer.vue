@@ -7,7 +7,9 @@ const props = defineProps<{ open: boolean }>()
 const emit = defineEmits<{ (e: 'close'): void }>()
 
 const gemList = computed(() =>
-  gemColors.map((g) => ({ name: g.name, color: g.color, count: inventory.gems[g.name] })),
+  gemColors
+    .map((g) => ({ name: g.name, color: g.color, count: inventory.gems[g.name] }))
+    .filter((g) => g.count > 0),
 )
 
 const closeTap = useTap(() => emit('close'), { trigger: 'down' })
@@ -31,25 +33,28 @@ const closeTap = useTap(() => emit('close'), { trigger: 'down' })
     </header>
 
     <div class="content">
-      <div class="stat">
+      <div class="stat" v-if="inventory.stone > 0">
         <div class="swatch" :style="{ background: 'linear-gradient(90deg, #bbb, #666)' }" />
         <div class="name">Stone</div>
         <div class="count">{{ inventory.stone }}</div>
       </div>
-      <div class="stat">
+      <div class="stat" v-if="inventory.wood > 0">
         <div class="swatch" :style="{ background: 'linear-gradient(90deg, #5a3b1f, #2d1f12)' }" />
         <div class="name">Wood</div>
         <div class="count">{{ inventory.wood }}</div>
       </div>
-      <div class="stat">
+      <div class="stat" v-if="inventory.fruit > 0">
         <div class="swatch" :style="{ background: 'linear-gradient(90deg, #ff9090, #d71818)' }" />
         <div class="name">Fruit</div>
         <div class="count">{{ inventory.fruit }}</div>
       </div>
 
-      <div class="divider"></div>
+      <div
+        class="divider"
+        v-if="gemList.length && (inventory.stone > 0 || inventory.wood > 0 || inventory.fruit > 0)"
+      ></div>
 
-      <div class="gems">
+      <div class="gems" v-if="gemList.length">
         <div v-for="g in gemList" :key="g.name" class="stat">
           <div class="swatch" :style="{ backgroundColor: g.color }" />
           <div class="name">{{ g.name }}</div>

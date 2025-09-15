@@ -6,11 +6,11 @@ import { useTap } from '../../composables/useTap'
 const props = defineProps<{ rIdx: number; cIdx: number; cell: CellData }>()
 const emit = defineEmits<{ (e: 'mine', rIdx: number, cIdx: number, cell: CellData): void }>()
 
-// +1 FX
-const fxs = ref<{ id: number; color: string }[]>([])
-function spawnFx(color: string) {
+// +1 FX and CLING
+const fxs = ref<{ id: number; color?: string; text: string }[]>([])
+function spawnFx(text: string, color?: string) {
   const id = Date.now() + Math.random()
-  fxs.value.push({ id, color })
+  fxs.value.push({ id, color, text })
   setTimeout(() => {
     const i = fxs.value.findIndex((f) => f.id === id)
     if (i !== -1) fxs.value.splice(i, 1)
@@ -19,7 +19,11 @@ function spawnFx(color: string) {
 
 const tap = useTap(
   () => {
-    spawnFx(props.cell.color)
+    if (props.cell.disabled) {
+      spawnFx('CLING')
+      return
+    }
+    spawnFx('+1', props.cell.color)
     emit('mine', props.rIdx, props.cIdx, props.cell)
   },
   {
@@ -33,8 +37,10 @@ const tap = useTap(
 <template>
   <button
     class="cell"
-    :style="{ backgroundColor: props.cell.color }"
-    aria-label="Mine block"
+    :class="{ disabled: props.cell.disabled }"
+    :style="{ backgroundColor: props.cell.disabled ? '#111' : props.cell.color }"
+    :aria-label="props.cell.disabled ? 'Depleted block' : 'Mine block'"
+    :disabled="props.cell.disabled"
     @pointerdown="tap.onPointerDown"
     @pointerup="tap.onPointerUp"
     @pointercancel="tap.onPointerCancel"
@@ -43,8 +49,8 @@ const tap = useTap(
   >
     <div class="cell-fx-wrap">
       <div v-for="f in fxs" :key="f.id" class="cell-fx">
-        <span class="fx-text">+1</span>
-        <span class="fx-swatch" :style="{ backgroundColor: f.color }" />
+        <span class="fx-text">{{ f.text }}</span>
+        <span v-if="f.color" class="fx-swatch" :style="{ backgroundColor: f.color }" />
       </div>
     </div>
   </button>
@@ -63,10 +69,15 @@ const tap = useTap(
   box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
   transition:
     transform 60ms ease,
-    filter 120ms ease;
+    filter 120ms ease,
+    background-color 200ms ease;
   border-radius: 4px; /* rounded corners */
   touch-action: manipulation; /* faster taps on mobile */
   -webkit-tap-highlight-color: transparent;
+}
+.cell.disabled {
+  cursor: not-allowed;
+  filter: brightness(0.6);
 }
 .cell:active {
   transform: scale(0.97);
@@ -95,11 +106,12 @@ const tap = useTap(
   right: 4px;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 2px 6px;
+  gap: 0.4rem;
+  padding: 0.25rem 0.5rem;
   border-radius: 6px;
   color: #fff;
   font-weight: 700;
+  font-size: 1.2rem; /* bumped for better readability */
   line-height: 1;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
   animation: fx-popfade 800ms ease-out forwards;
@@ -108,8 +120,8 @@ const tap = useTap(
   opacity: 0.95;
 }
 .fx-swatch {
-  width: 10px;
-  height: 10px;
+  width: 0.7rem;
+  height: 0.7rem;
   border-radius: 2px;
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.25);
 }

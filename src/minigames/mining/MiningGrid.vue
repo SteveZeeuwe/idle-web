@@ -76,8 +76,19 @@ function trimTopIfNeeded() {
 
 function mineCell(rIdx: number, cIdx: number) {
   const cell = rows.value[rIdx][cIdx]
-  addToInventory(cell)
-  rows.value[rIdx][cIdx] = props.mine ? randomCellForMine(props.mine) : randomCell()
+  // If cell is disabled, do nothing; MiningCell will show CLING feedback locally
+  if (cell.disabled) return
+  // Consume one hit
+  cell.remaining -= 1
+  if (cell.remaining >= 0) {
+    // Only award resources while the block is still mineable (including the last valid hit)
+    addToInventory(cell)
+  }
+  if (cell.remaining <= 0) {
+    cell.disabled = true
+  }
+  // Replace the cell only when disabled? Keep same cell instance to preserve visual state
+  // Do not replace here; MiningCell will render disabled state. Cells refresh on row recycle.
 }
 
 function onScroll() {

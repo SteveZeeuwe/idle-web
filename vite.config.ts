@@ -7,7 +7,7 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 // https://vite.dev/config/
 export default defineConfig({
   // Ensure assets resolve correctly when deployed under this subpath
-  base: '/idle',
+  base: '/idle/minigames/mining/',
   plugins: [vue(), vueDevTools()],
   resolve: {
     alias: {

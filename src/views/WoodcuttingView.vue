@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
+import { ref, onMounted, onBeforeUnmount, computed, watch } from 'vue'
 import Minigame from '../minigames/Minigame.vue'
 import { addWood, addFruit } from '../stores/inventory'
 import { useTap } from '../composables/useTap'
@@ -331,6 +331,16 @@ function getTreeTap(t: Tree) {
 // init
 if (trees.value.length === 0) genTrees(12)
 
+// Re-generate trees when fieldId changes (deep link or in-app nav)
+watch(
+  () => fieldId.value,
+  () => {
+    trees.value = []
+    nextTreeId = 1
+    genTrees(12)
+  },
+)
+
 onMounted(() => {
   if (viewport.value && 'ResizeObserver' in window) {
     ro = new ResizeObserver(() => {
@@ -543,12 +553,13 @@ onBeforeUnmount(() => {
   left: 0;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 2px 6px;
+  gap: 0.5rem; /* was 6px */
+  padding: 0.25rem 0.5rem; /* was 2px 6px */
   border-radius: 6px;
   color: #fff;
   font-weight: 700;
   line-height: 1;
+  font-size: 1.2rem; /* explicit and larger for visibility */
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
   animation: fx-popfade 800ms ease-out forwards;
 }
@@ -556,8 +567,8 @@ onBeforeUnmount(() => {
   opacity: 0.95;
 }
 .fx-swatch {
-  width: 10px;
-  height: 10px;
+  width: 0.7rem; /* was 10px */
+  height: 0.7rem; /* was 10px */
   border-radius: 2px;
   /* background set inline per FX */
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.25);

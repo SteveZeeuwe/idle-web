@@ -21,7 +21,7 @@ const openTap = useTap(
 </script>
 
 <template>
-  <Minigame :back-to="{ name: 'mining' }">
+  <Minigame :back-to="'/'">
     <MiningGrid :mine="mine" />
     <div v-if="!mine" class="missing-mine">Unknown mine.</div>
     <button

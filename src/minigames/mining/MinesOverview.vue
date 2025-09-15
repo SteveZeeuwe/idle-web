@@ -88,11 +88,11 @@ function gemRate(mine: (typeof mines)[number], name: string) {
 }
 .card-head h2 {
   margin: 0 0 4px;
-  font-size: 16px;
+  font-size: 1.1rem;
 }
 .card-head .length {
   margin: 0;
-  font-size: 12px;
+  font-size: 0.9rem;
   opacity: 0.75;
 }
 .resources {
@@ -105,7 +105,7 @@ function gemRate(mine: (typeof mines)[number], name: string) {
   grid-template-columns: 20px 1fr auto;
   align-items: center;
   gap: 6px;
-  font-size: 12px;
+  font-size: 0.9rem;
 }
 .swatch {
   width: 16px;
@@ -117,7 +117,7 @@ function gemRate(mine: (typeof mines)[number], name: string) {
   font-weight: 600;
 }
 .empty {
-  font-size: 12px;
+  font-size: 0.9rem;
   opacity: 0.7;
 }
 </style>
