@@ -1,7 +1,28 @@
-// filepath: src/minigames/woodcutting/FieldsOverview.vue
 <script setup lang="ts">
 import Minigame from '../Minigame.vue'
-import { fields } from './fields'
+import { fields, addField } from './fields'
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+
+const creating = ref(false)
+const form = ref({ name: '', tree_amount: 12, fruit: 25 })
+const router = useRouter()
+
+function startCreate() {
+  creating.value = true
+}
+function cancelCreate() {
+  creating.value = false
+}
+function submitCreate() {
+  const f = addField({
+    name: form.value.name || 'Custom Field',
+    tree_amount: Math.max(1, Number(form.value.tree_amount) || 12),
+    fruitChance: Math.max(0, Math.min(1, (Number(form.value.fruit) || 0) / 100)),
+  })
+  creating.value = false
+  router.push({ name: 'field-play', params: { fieldId: f.id } })
+}
 </script>
 
 <template>
@@ -9,6 +30,32 @@ import { fields } from './fields'
     <main class="fields-overview">
       <h1>Fields</h1>
       <section class="cards">
+        <!-- Create Field card -->
+        <div class="card create-card">
+          <template v-if="!creating">
+            <button class="create-btn" @click="startCreate" aria-label="Create new field">
+              + Create Field
+            </button>
+          </template>
+          <template v-else>
+            <div class="form-row">
+              <label>Name</label><input v-model="form.name" placeholder="Custom Field" />
+            </div>
+            <div class="form-row">
+              <label>Trees</label
+              ><input v-model.number="form.tree_amount" type="number" min="1" step="1" />
+            </div>
+            <div class="form-row">
+              <label>Fruit %</label
+              ><input v-model.number="form.fruit" type="number" min="0" max="100" step="0.1" />
+            </div>
+            <div class="form-actions">
+              <button class="btn" @click="submitCreate">Add</button>
+              <button class="btn" @click="cancelCreate">Cancel</button>
+            </div>
+          </template>
+        </div>
+
         <RouterLink
           v-for="f in fields"
           :key="f.id"
@@ -18,7 +65,7 @@ import { fields } from './fields'
         >
           <div class="card-head">
             <h2>{{ f.name }}</h2>
-            <p class="length">Rows: {{ f.length }}</p>
+            <p class="length">Trees: {{ f.tree_amount }}</p>
           </div>
           <div class="stats">
             <div class="stat">
@@ -97,5 +144,30 @@ import { fields } from './fields'
 }
 .value {
   font-weight: 700;
+}
+.create-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.create-btn {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: none;
+  background: #2a2f39;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 8px;
+}
+.form-actions {
+  display: flex;
+  gap: 8px;
 }
 </style>

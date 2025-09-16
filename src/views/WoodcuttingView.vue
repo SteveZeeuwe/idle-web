@@ -329,7 +329,7 @@ function getTreeTap(t: Tree) {
 }
 
 // init
-if (trees.value.length === 0) genTrees(12)
+if (trees.value.length === 0) genTrees(field.value?.tree_amount ?? 12)
 
 // Re-generate trees when fieldId changes (deep link or in-app nav)
 watch(
@@ -337,7 +337,7 @@ watch(
   () => {
     trees.value = []
     nextTreeId = 1
-    genTrees(12)
+    genTrees(field.value?.tree_amount ?? 12)
   },
 )
 

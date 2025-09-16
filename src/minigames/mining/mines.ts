@@ -139,3 +139,29 @@ export function stoneChance(mine: MineDefinition) {
   const t = totalGemChance(mine)
   return t >= 1 ? 0 : 1 - t
 }
+
+// Create a new mine at runtime. Generates a unique id from the name and pushes to the list.
+export function addMine(input: {
+  name: string
+  length: number
+  gemRates: Partial<Record<GemName, number>>
+  description?: string
+}): MineDefinition {
+  const base =
+    (input.name || 'mine')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '') || 'mine'
+  let id = base
+  let i = 1
+  while (mines.some((m) => m.id === id)) id = `${base}-${i++}`
+  const mine: MineDefinition = { id, ...input }
+  // quick sanity: clamp negative/NaN
+  for (const k of Object.keys(mine.gemRates) as GemName[]) {
+    const v = mine.gemRates[k]
+    if (v == null) continue
+    mine.gemRates[k] = Math.max(0, Number.isFinite(v) ? v : 0)
+  }
+  mines.push(mine)
+  return mine
+}
