@@ -54,7 +54,6 @@ body,
 #app {
   margin: 0;
   height: 100%;
-  overflow: hidden;
 }
 
 /* Increase root font-size for better mobile readability */

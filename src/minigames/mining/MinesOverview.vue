@@ -61,12 +61,14 @@ function gemRate(mine: (typeof mines)[number], name: string) {
   -webkit-overflow-scrolling: touch;
   padding-bottom: calc(48px + env(safe-area-inset-bottom, 0px));
 }
+
 .cards {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 12px;
   padding-bottom: 16px;
 }
+
 .card {
   display: flex;
   flex-direction: column;
@@ -77,29 +79,36 @@ function gemRate(mine: (typeof mines)[number], name: string) {
   padding: 12px 14px 14px;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
 }
+
 .card:hover {
   filter: brightness(1.05);
 }
+
 .card:active {
   transform: scale(0.995);
 }
+
 .card-head {
   margin: 0 0 8px;
 }
+
 .card-head h2 {
   margin: 0 0 4px;
   font-size: 1.1rem;
 }
+
 .card-head .length {
   margin: 0;
   font-size: 0.9rem;
   opacity: 0.75;
 }
+
 .resources {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 6px 10px;
 }
+
 .res {
   display: grid;
   grid-template-columns: 20px 1fr auto;
@@ -107,6 +116,7 @@ function gemRate(mine: (typeof mines)[number], name: string) {
   gap: 6px;
   font-size: 0.9rem;
 }
+
 .swatch {
   width: 16px;
   height: 16px;
