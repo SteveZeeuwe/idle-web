@@ -7,9 +7,24 @@ import InventoryDrawer from '../components/InventoryDrawer.vue'
 import { useRoute } from 'vue-router'
 import { getField } from '../minigames/woodcutting/fields'
 
-// World dimensions switched to 9:6 (3:2) logical space
-const WORLD_W = 1800
-const WORLD_H = 1200
+// Base world size and aspect
+const BASE_W = 1800
+const BASE_H = 1200
+const ASPECT = BASE_W / BASE_H // 3:2
+const BASE_TREES = 12
+const PACKING_FACTOR = 1.15 // slight overhead for spacing/packing
+
+const route = useRoute()
+const fieldId = computed(() => route.params.fieldId as string | undefined)
+const field = computed(() => getField(fieldId.value))
+
+// Dynamic world size from tree count, min at base size
+const treeCount = computed(() => field.value?.tree_amount ?? BASE_TREES)
+const areaScale = computed(() => Math.max(1, (treeCount.value / BASE_TREES) * PACKING_FACTOR))
+const worldW = computed(() => Math.round(Math.sqrt(BASE_W * BASE_H * areaScale.value * ASPECT)))
+const worldH = computed(() => Math.round(worldW.value / ASPECT))
+
+// World dimensions switched to 9:6 (3:2) logical space (now dynamic)
 const GAP = 4 // visual gap between crown and stem
 const MIN_BASE_DIST = 30 // minimum distance between tree bases
 const RECT_MARGIN = 6 // extra margin to avoid visual overlap of crowns
@@ -27,13 +42,18 @@ let worldStart = { x: 0, y: 0 }
 let ro: ResizeObserver | null = null
 
 function clampOffset(x: number, y: number) {
-  const maxX = Math.max(0, (WORLD_W - viewportSize.value.w) / 2)
-  const maxY = Math.max(0, (WORLD_H - viewportSize.value.h) / 2)
+  const maxX = Math.max(0, (worldW.value - viewportSize.value.w) / 2)
+  const maxY = Math.max(0, (worldH.value - viewportSize.value.h) / 2)
   return {
     x: Math.min(maxX, Math.max(-maxX, x)),
     y: Math.min(maxY, Math.max(-maxY, y)),
   }
 }
+
+watch([worldW, worldH], () => {
+  // Re-clamp when world size changes
+  worldOffset.value = clampOffset(worldOffset.value.x, worldOffset.value.y)
+})
 
 function onPointerDown(e: PointerEvent) {
   if (e.button !== 0) return
@@ -79,9 +99,6 @@ function hasProp(t: Tree, key: TreeProp) {
 }
 
 // Field-driven property chances
-const route = useRoute()
-const fieldId = computed(() => route.params.fieldId as string | undefined)
-const field = computed(() => getField(fieldId.value))
 const fruitChance = computed(() => field.value?.fruitChance ?? 0.25)
 
 const trees = ref<Tree[]>([])
@@ -179,7 +196,7 @@ function genFruitPositions(
   return fruits
 }
 
-function genTrees(n = 12) {
+function genTrees(n = treeCount.value) {
   const arr: Tree[] = []
   const PAD = 8 // padding from the field edges
 
@@ -208,14 +225,14 @@ function genTrees(n = 12) {
 
     // choose a base point fully inside the field accounting for the full bounding box
     const minX = maxW / 2 + PAD
-    const maxX = WORLD_W - maxW / 2 - PAD
+    const maxX = worldW.value - maxW / 2 - PAD
     const minY = fullH + PAD // top of tree >= 0
-    const maxY = WORLD_H - PAD // base inside bottom
+    const maxY = worldH.value - PAD // base inside bottom
 
     let x = 0,
       y = 0
     let attempts = 0
-    const MAX_ATTEMPTS = 3000
+    const MAX_ATTEMPTS = Math.max(3000, n * 400)
 
     // rejection sampling to enforce minimum spacing between bases AND no bounding box overlap
     attemptLoop: do {
@@ -329,7 +346,7 @@ function getTreeTap(t: Tree) {
 }
 
 // init
-if (trees.value.length === 0) genTrees(field.value?.tree_amount ?? 12)
+if (trees.value.length === 0) genTrees(treeCount.value)
 
 // Re-generate trees when fieldId changes (deep link or in-app nav)
 watch(
@@ -337,7 +354,7 @@ watch(
   () => {
     trees.value = []
     nextTreeId = 1
-    genTrees(field.value?.tree_amount ?? 12)
+    genTrees(treeCount.value)
   },
 )
 
@@ -376,9 +393,9 @@ onBeforeUnmount(() => {
         ref="world"
         class="wc-world"
         :style="{
-          transform: `translate(${-WORLD_W / 2 + worldOffset.x}px, ${-WORLD_H / 2 + worldOffset.y}px)`,
-          width: WORLD_W + 'px',
-          height: WORLD_H + 'px',
+          transform: `translate(${-worldW / 2 + worldOffset.x}px, ${-worldH / 2 + worldOffset.y}px)`,
+          width: worldW + 'px',
+          height: worldH + 'px',
         }"
       >
         <!-- 9:6 background ground -->
